@@ -12,7 +12,9 @@ app.get("/", (req, res) => {
 
 app.post("/generate-pdf", async (req, res) => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: "/path/to/Chrome-or-Chromium",
+    });
     const page = await browser.newPage();
 
     // Set the HTML content
