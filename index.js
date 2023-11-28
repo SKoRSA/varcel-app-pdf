@@ -6,6 +6,10 @@ app.use(express.json());
 
 const PORT = 3000;
 
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
+
 app.post("/generate-pdf", (req, res) => {
   const doc = new jsPDF();
   doc.text(req.body.text, 10, 10);
