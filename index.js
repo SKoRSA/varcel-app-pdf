@@ -1,5 +1,5 @@
 const express = require("express");
-const jsPDF = require("jspdf");
+const puppeteer = require("puppeteer");
 const app = express();
 
 app.use(express.json());
@@ -10,11 +10,26 @@ app.get("/", (req, res) => {
   res.send("Server is running!");
 });
 
-app.post("/generate-pdf", (req, res) => {
-  const doc = new jsPDF();
-  doc.text(req.body.text, 10, 10);
-  const pdfData = doc.output("datauristring");
-  res.send({ pdfData });
+app.post("/generate-pdf", async (req, res) => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Set the HTML content
+    await page.setContent(req.body.text, { waitUntil: "networkidle0" });
+
+    // Generate PDF
+    const pdfBuffer = await page.pdf({ format: "A4" });
+
+    // Close the browser
+    await browser.close();
+
+    // Send PDF as a buffer
+    res.type("application/pdf");
+    res.send(pdfBuffer);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
